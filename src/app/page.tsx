@@ -88,6 +88,19 @@ export default function HomePage() {
               </p>
             </div>
           </Link>
+
+          {/* 商户确认 */}
+          <Link href="/admin/confirm-payment" className="group">
+            <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 border-2 border-transparent hover:border-indigo-500">
+              <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <span className="text-3xl">💼</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">商户确认</h3>
+              <p className="text-sm text-gray-500">
+                确认大额支付，管理收款
+              </p>
+            </div>
+          </Link>
         </div>
 
         {/* 我的 */}

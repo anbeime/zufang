@@ -104,11 +104,14 @@ export default function PayContent() {
     setShowQrCode(false);
 
     try {
+      let needsConfirmation = false;
+      let responseCoupon = null;
+
       // 逐个支付账单
       for (const billId of selectedBills) {
         const bill = bills.find(b => b.id === billId);
         if (bill) {
-          await fetch('/api/payments', {
+          const res = await fetch('/api/payments', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -119,7 +122,22 @@ export default function PayContent() {
               paymentMethod: 'wechat',
             }),
           });
+
+          const data = await res.json();
+          if (data.needsConfirmation) {
+            needsConfirmation = true;
+          }
+          if (data.coupon) {
+            responseCoupon = data.coupon;
+          }
         }
+      }
+
+      // 保存状态用于成功页面显示
+      if (needsConfirmation) {
+        setCoupon({ needsConfirmation: true });
+      } else if (responseCoupon) {
+        setCoupon(responseCoupon);
       }
 
       setStep('success');
@@ -324,14 +342,37 @@ export default function PayContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-3">支付成功！</h1>
-            <p className="text-lg text-gray-600 mb-2">实付：￥{totalAmount.toFixed(2)}</p>
-            {coupon && (
+            <h1 className="text-3xl font-bold text-gray-900 mb-3">
+              {coupon?.needsConfirmation ? '提交成功！' : '支付成功！'}
+            </h1>
+            <p className="text-lg text-gray-600 mb-2">支付金额：￥{totalAmount.toFixed(2)}</p>
+            
+            {/* 根据金额显示不同提示 */}
+            {coupon?.needsConfirmation ? (
+              <div className="bg-blue-50 rounded-xl p-4 mb-6">
+                <div className="text-3xl mb-2">⏳</div>
+                <p className="font-semibold text-blue-700">等待商户确认收款</p>
+                <p className="text-blue-600 mt-2">
+                  金额较大（≥￥{process.env.NEXT_PUBLIC_AUTO_CONFIRM_THRESHOLD || '500'}），需要商户确认
+                </p>
+                <p className="text-sm text-blue-600 mt-2">
+                  商户确认后将自动发放优惠券
+                </p>
+              </div>
+            ) : coupon ? (
               <div className="bg-yellow-50 rounded-xl p-4 mb-6">
                 <div className="text-3xl mb-2">🎉</div>
                 <p className="font-semibold text-yellow-700">已自动发放返现券</p>
                 <p className="text-yellow-600">{coupon.description}</p>
                 <p className="text-sm text-yellow-600 mt-2">可在商超购物时自动抵扣</p>
+              </div>
+            ) : (
+              <div className="bg-green-50 rounded-xl p-4 mb-6">
+                <div className="text-3xl mb-2">✓</div>
+                <p className="font-semibold text-green-700">支付已记录</p>
+                <p className="text-sm text-green-600 mt-2">
+                  小额支付（&lt;￥{process.env.NEXT_PUBLIC_AUTO_CONFIRM_THRESHOLD || '500'}），自动完成
+                </p>
               </div>
             )}
 
