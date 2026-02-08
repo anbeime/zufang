@@ -1,7 +1,10 @@
-import { getDb } from "coze-coding-dev-sdk";
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 
-// 导出 db 实例
-export const db = await getDb();
+// 创建数据库连接
+const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL || '';
+const client = postgres(connectionString);
+export const db = drizzle(client);
 
 export { roomManager } from "./roomManager";
 export { tenantManager } from "./tenantManager";

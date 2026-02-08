@@ -1,11 +1,11 @@
-import { eq, and, SQL, sql, desc } from "drizzle-orm";
-import { getDb } from "coze-coding-dev-sdk";
+﻿import { eq, and, SQL, sql, desc } from "drizzle-orm";
+import { db } from "./index";
 import { rooms, insertRoomSchema } from "./shared/schema";
 import type { Room, InsertRoom } from "./shared/schema";
 
 export class RoomManager {
   async createRoom(data: InsertRoom): Promise<Room> {
-    const db = await getDb();
+    
     const validated = insertRoomSchema.parse(data);
     const [room] = await db.insert(rooms).values(validated).returning();
     return room;
@@ -18,7 +18,7 @@ export class RoomManager {
     status?: string;
   } = {}): Promise<Room[]> {
     const { floor, type, roomType, status } = options;
-    const db = await getDb();
+    
 
     const conditions: SQL[] = [];
     if (floor !== undefined) conditions.push(eq(rooms.floor, floor));
@@ -34,19 +34,19 @@ export class RoomManager {
   }
 
   async getRoomById(id: string): Promise<Room | null> {
-    const db = await getDb();
+    
     const [room] = await db.select().from(rooms).where(eq(rooms.id, id));
     return room || null;
   }
 
   async getRoomByNumber(roomNumber: string): Promise<Room | null> {
-    const db = await getDb();
+    
     const [room] = await db.select().from(rooms).where(eq(rooms.roomNumber, roomNumber));
     return room || null;
   }
 
   async updateRoom(id: string, data: Partial<InsertRoom>): Promise<Room | null> {
-    const db = await getDb();
+    
     const [room] = await db
       .update(rooms)
       .set({ ...data, updatedAt: new Date().toISOString() })
@@ -56,7 +56,7 @@ export class RoomManager {
   }
 
   async updateRoomStatus(id: string, status: string): Promise<Room | null> {
-    const db = await getDb();
+    
     const [room] = await db
       .update(rooms)
       .set({ status, updatedAt: new Date().toISOString() })
@@ -66,7 +66,7 @@ export class RoomManager {
   }
 
   async deleteRoom(id: string): Promise<boolean> {
-    const db = await getDb();
+    
     const result = await db.delete(rooms).where(eq(rooms.id, id));
     return (result.rowCount ?? 0) > 0;
   }
@@ -92,7 +92,7 @@ export class RoomManager {
 
   // 初始化房间数据（按用户配置）
   async initializeRooms() {
-    const db = await getDb();
+    
     const existingRooms = await db.select().from(rooms);
 
     if (existingRooms.length === 0) {

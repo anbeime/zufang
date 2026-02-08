@@ -1,11 +1,11 @@
-import { eq, and, SQL, sql } from "drizzle-orm";
-import { getDb } from "coze-coding-dev-sdk";
+﻿import { eq, and, SQL, sql } from "drizzle-orm";
+import { db } from "./index";
 import { coupons, insertCouponSchema } from "./shared/schema";
 import type { Coupon, InsertCoupon } from "./shared/schema";
 
 export class CouponManager {
   async createCoupon(data: InsertCoupon): Promise<Coupon> {
-    const db = await getDb();
+    
     const validated = insertCouponSchema.parse(data);
     const [coupon] = await db.insert(coupons).values(validated).returning();
     return coupon;
@@ -16,7 +16,7 @@ export class CouponManager {
     status?: string;
   } = {}): Promise<Coupon[]> {
     const { tenantId, status } = options;
-    const db = await getDb();
+    
 
     const conditions: SQL[] = [];
     if (tenantId !== undefined) conditions.push(eq(coupons.tenantId, tenantId));
@@ -30,19 +30,19 @@ export class CouponManager {
   }
 
   async getCouponById(id: string): Promise<Coupon | null> {
-    const db = await getDb();
+    
     const [coupon] = await db.select().from(coupons).where(eq(coupons.id, id));
     return coupon || null;
   }
 
   async getCouponByCode(code: string): Promise<Coupon | null> {
-    const db = await getDb();
+    
     const [coupon] = await db.select().from(coupons).where(eq(coupons.code, code));
     return coupon || null;
   }
 
   async updateCoupon(id: string, data: Partial<InsertCoupon>): Promise<Coupon | null> {
-    const db = await getDb();
+    
     const [coupon] = await db
       .update(coupons)
       .set({ ...data, updatedAt: new Date().toISOString() })
@@ -52,7 +52,7 @@ export class CouponManager {
   }
 
   async updateCouponStatus(id: string, status: string): Promise<Coupon | null> {
-    const db = await getDb();
+    
     const [coupon] = await db
       .update(coupons)
       .set({ status, updatedAt: new Date().toISOString() })
@@ -63,7 +63,7 @@ export class CouponManager {
 
   // 根据电费账单金额生成返现券（单次支付满返）
   async generateCouponByBill(tenantId: string, billId: string, billAmount: string): Promise<Coupon | null> {
-    const db = await getDb();
+    
     const amount = parseFloat(billAmount);
 
     // 从系统配置中读取电费满返规则
@@ -141,7 +141,7 @@ export class CouponManager {
 
   // 使用优惠券
   async useCoupon(couponId: string, orderId: string): Promise<Coupon | null> {
-    const db = await getDb();
+    
     const [coupon] = await db
       .update(coupons)
       .set({ status: 'used', updatedAt: new Date().toISOString() })
@@ -164,7 +164,7 @@ export class CouponManager {
   }
 
   async deleteCoupon(id: string): Promise<boolean> {
-    const db = await getDb();
+    
     const result = await db.delete(coupons).where(eq(coupons.id, id));
     return (result.rowCount ?? 0) > 0;
   }

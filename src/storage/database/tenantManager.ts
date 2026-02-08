@@ -1,11 +1,11 @@
-import { eq, and, SQL, like } from "drizzle-orm";
-import { getDb } from "coze-coding-dev-sdk";
+﻿import { eq, and, SQL, like } from "drizzle-orm";
+import { db } from "./index";
 import { tenants, insertTenantSchema, updateTenantSchema } from "./shared/schema";
 import type { Tenant, InsertTenant, UpdateTenant } from "./shared/schema";
 
 export class TenantManager {
   async createTenant(data: InsertTenant): Promise<Tenant> {
-    const db = await getDb();
+    
     const validated = insertTenantSchema.parse(data);
     const [tenant] = await db.insert(tenants).values({
       ...validated,
@@ -19,7 +19,7 @@ export class TenantManager {
     phone?: string;
   } = {}): Promise<Tenant[]> {
     const { roomId, status, phone } = options;
-    const db = await getDb();
+    
 
     const conditions: SQL[] = [];
     if (roomId !== undefined) conditions.push(eq(tenants.roomId, roomId));
@@ -34,19 +34,19 @@ export class TenantManager {
   }
 
   async getTenantById(id: string): Promise<Tenant | null> {
-    const db = await getDb();
+    
     const [tenant] = await db.select().from(tenants).where(eq(tenants.id, id));
     return tenant || null;
   }
 
   async getTenantByPhone(phone: string): Promise<Tenant | null> {
-    const db = await getDb();
+    
     const [tenant] = await db.select().from(tenants).where(eq(tenants.phone, phone));
     return tenant || null;
   }
 
   async updateTenant(id: string, data: UpdateTenant): Promise<Tenant | null> {
-    const db = await getDb();
+    
     const validated = updateTenantSchema.parse(data);
     const [tenant] = await db
       .update(tenants)
@@ -57,7 +57,7 @@ export class TenantManager {
   }
 
   async updateTenantStatus(id: string, status: string, moveOutDate?: Date): Promise<Tenant | null> {
-    const db = await getDb();
+    
     const updateData: any = { status, updatedAt: new Date().toISOString() };
     if (moveOutDate) updateData.moveOutDate = moveOutDate.toISOString();
 
@@ -70,7 +70,7 @@ export class TenantManager {
   }
 
   async deleteTenant(id: string): Promise<boolean> {
-    const db = await getDb();
+    
     const result = await db.delete(tenants).where(eq(tenants.id, id));
     return (result.rowCount ?? 0) > 0;
   }

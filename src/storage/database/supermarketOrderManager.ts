@@ -1,11 +1,11 @@
-import { eq, and, SQL, desc, sql } from "drizzle-orm";
-import { getDb } from "coze-coding-dev-sdk";
+﻿import { eq, and, SQL, desc, sql } from "drizzle-orm";
+import { db } from "./index";
 import { supermarketOrders, insertSupermarketOrderSchema, coupons } from "./shared/schema";
 import type { SupermarketOrder, InsertSupermarketOrder } from "./shared/schema";
 
 export class SupermarketOrderManager {
   async createOrder(data: InsertSupermarketOrder): Promise<SupermarketOrder> {
-    const db = await getDb();
+    
     const validated = insertSupermarketOrderSchema.parse(data);
     const [order] = await db.insert(supermarketOrders).values(validated).returning();
     return order;
@@ -16,7 +16,7 @@ export class SupermarketOrderManager {
     status?: string;
   } = {}): Promise<SupermarketOrder[]> {
     const { tenantId, status } = options;
-    const db = await getDb();
+    
 
     const conditions: SQL[] = [];
     if (tenantId !== undefined) conditions.push(eq(supermarketOrders.tenantId, tenantId));
@@ -30,13 +30,13 @@ export class SupermarketOrderManager {
   }
 
   async getOrderById(id: string): Promise<SupermarketOrder | null> {
-    const db = await getDb();
+    
     const [order] = await db.select().from(supermarketOrders).where(eq(supermarketOrders.id, id));
     return order || null;
   }
 
   async updateOrder(id: string, data: Partial<InsertSupermarketOrder>): Promise<SupermarketOrder | null> {
-    const db = await getDb();
+    
     const [order] = await db
       .update(supermarketOrders)
       .set({ ...data, updatedAt: new Date().toISOString() })
@@ -52,7 +52,7 @@ export class SupermarketOrderManager {
     items: any[],
     couponCode?: string
   ): Promise<{ order: SupermarketOrder; couponUsed: boolean; discountAmount: string }> {
-    const db = await getDb();
+    
 
     let couponAmount = 0;
     let couponUsed = false;
@@ -105,7 +105,7 @@ export class SupermarketOrderManager {
   }
 
   async deleteOrder(id: string): Promise<boolean> {
-    const db = await getDb();
+    
     const result = await db.delete(supermarketOrders).where(eq(supermarketOrders.id, id));
     return (result.rowCount ?? 0) > 0;
   }

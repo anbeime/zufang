@@ -1,11 +1,11 @@
-import { eq, and, SQL, desc } from "drizzle-orm";
-import { getDb } from "coze-coding-dev-sdk";
+﻿import { eq, and, SQL, desc } from "drizzle-orm";
+import { db } from "./index";
 import { payments, insertPaymentSchema } from "./shared/schema";
 import type { Payment, InsertPayment } from "./shared/schema";
 
 export class PaymentManager {
   async createPayment(data: InsertPayment): Promise<Payment> {
-    const db = await getDb();
+    
     const validated = insertPaymentSchema.parse(data);
     const [payment] = await db.insert(payments).values(validated).returning();
     return payment;
@@ -18,7 +18,7 @@ export class PaymentManager {
     status?: string;
   } = {}): Promise<Payment[]> {
     const { tenantId, billId, type, status } = options;
-    const db = await getDb();
+    
 
     const conditions: SQL[] = [];
     if (tenantId !== undefined) conditions.push(eq(payments.tenantId, tenantId));
@@ -34,13 +34,13 @@ export class PaymentManager {
   }
 
   async getPaymentById(id: string): Promise<Payment | null> {
-    const db = await getDb();
+    
     const [payment] = await db.select().from(payments).where(eq(payments.id, id));
     return payment || null;
   }
 
   async updatePayment(id: string, data: Partial<InsertPayment>): Promise<Payment | null> {
-    const db = await getDb();
+    
     const [payment] = await db
       .update(payments)
       .set(data)
@@ -50,7 +50,7 @@ export class PaymentManager {
   }
 
   async deletePayment(id: string): Promise<boolean> {
-    const db = await getDb();
+    
     const result = await db.delete(payments).where(eq(payments.id, id));
     return (result.rowCount ?? 0) > 0;
   }
