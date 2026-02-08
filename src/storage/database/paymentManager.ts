@@ -52,7 +52,7 @@ export class PaymentManager {
   async deletePayment(id: string): Promise<boolean> {
     
     const result = await db.delete(payments).where(eq(payments.id, id));
-    return (result.rowCount ?? 0) > 0;
+    return result.length > 0;
   }
 }
 

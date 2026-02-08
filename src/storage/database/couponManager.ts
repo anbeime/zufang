@@ -166,7 +166,7 @@ export class CouponManager {
   async deleteCoupon(id: string): Promise<boolean> {
     
     const result = await db.delete(coupons).where(eq(coupons.id, id));
-    return (result.rowCount ?? 0) > 0;
+    return result.length > 0;
   }
 }
 

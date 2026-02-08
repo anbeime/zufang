@@ -72,7 +72,7 @@ export class TenantManager {
   async deleteTenant(id: string): Promise<boolean> {
     
     const result = await db.delete(tenants).where(eq(tenants.id, id));
-    return (result.rowCount ?? 0) > 0;
+    return result.length > 0;
   }
 }
 

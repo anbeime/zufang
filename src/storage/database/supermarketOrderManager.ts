@@ -107,7 +107,7 @@ export class SupermarketOrderManager {
   async deleteOrder(id: string): Promise<boolean> {
     
     const result = await db.delete(supermarketOrders).where(eq(supermarketOrders.id, id));
-    return (result.rowCount ?? 0) > 0;
+    return result.length > 0;
   }
 }
 

@@ -68,7 +68,7 @@ export class RoomManager {
   async deleteRoom(id: string): Promise<boolean> {
     
     const result = await db.delete(rooms).where(eq(rooms.id, id));
-    return (result.rowCount ?? 0) > 0;
+    return result.length > 0;
   }
 
   // 获取可用房间列表（按类型分组）

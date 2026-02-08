@@ -106,7 +106,7 @@ export class BillManager {
   async deleteBill(id: string): Promise<boolean> {
     
     const result = await db.delete(bills).where(eq(bills.id, id));
-    return (result.rowCount ?? 0) > 0;
+    return result.length > 0;
   }
 }
 
