@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
-import { getDb } from 'coze-coding-dev-sdk';
+import { db } from '@/storage/database';
 import { rooms } from '@/storage/database/shared/schema';
 import { roomManager } from '@/storage/database/roomManager';
 
 // 初始化房间数据
 export async function POST(request: NextRequest) {
   try {
-    const db = await getDb();
+    // db is imported from @/storage/database
 
     // 检查是否已有房间数据
     const existingRooms = await db.select().from(rooms);
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 // 清空并重新初始化房间数据
 export async function DELETE(request: NextRequest) {
   try {
-    const db = await getDb();
+    // db is imported from @/storage/database
 
     // 删除所有房间数据
     await db.delete(rooms);
